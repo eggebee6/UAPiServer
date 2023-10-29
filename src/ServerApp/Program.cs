@@ -9,13 +9,14 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using UAServer;
 
 namespace ServerApp
 {
   internal class Program
   {
     private static ILogger<Program> logger = new NullLogger<Program>();
-    private static ProgramOptions options = new ProgramOptions();
+    private static ProgramOptions programOptions = new ProgramOptions();
 
     static async Task<int> Main(string[] args)
     {
@@ -32,13 +33,13 @@ namespace ServerApp
 
       // Get server certificate (or use default certificate)
       X509Certificate2? certificate = null;
-      if (options.CertificateFilename != null)
+      if (programOptions.CertificateFilename != null)
       {
         try
         {
           certificate = GetServerCertificate(
-            options.CertificateFilename,
-            options.CertificatePassword ?? string.Empty);
+            programOptions.CertificateFilename,
+            programOptions.CertificatePassword ?? string.Empty);
         }
         catch (Exception ex)
         {
@@ -57,42 +58,62 @@ namespace ServerApp
       }
 
       // Warn if auto-accept is enabled
-      if (options.AutoAccept)
+      if (programOptions.AutoAccept)
       {
         logger.LogWarning("Auto-accept client certificates is ON");
       }
 
-      // Send quit signal when CTRL+C is received
-      ManualResetEvent quitEvent = new ManualResetEvent(false);
-      Console.CancelKeyPress += (sender, eArgs) =>
+      // Create server
+      PiServer piServer = new PiServer(opts =>
       {
-        quitEvent.Set();
-        eArgs.Cancel = true;
-      };
+        opts.LoggerFactory = loggerFactory;
+        opts.Certificate = certificate;
+        opts.AutoAccept = programOptions.AutoAccept;
+        opts.SenseHat = new SimulatedSenseHat();
+      });
 
-      // Launch and run the server
+      var exitCode = ExitCode.Error;
       try
       {
-        logger.LogInformation("Launching server...");
-        // TODO: Launch the server!
+        logger.LogInformation("Starting server");
+        
+        // Start server
+        await piServer.StartServer(
+          "Resources/Configuration/PiServer.Config.xml",
+          programOptions.CertificatePassword);
+
+        // Send quit signal when CTRL+C is received
+        ManualResetEvent quitEvent = new ManualResetEvent(false);
+        Console.CancelKeyPress += (sender, eArgs) =>
+        {
+          quitEvent.Set();
+          eArgs.Cancel = true;
+        };
 
         // Run until stop event occurs
-        logger.LogInformation("Running server, CTRL+C to stop...");
+        logger.LogInformation("Running server, CTRL+C to stop");
         quitEvent.WaitOne(Timeout.Infinite);
+
+        exitCode = ExitCode.OK;
       }
       catch (Exception ex)
       {
         // Log server exception
         logger.LogError(ex, "Unhandled server exception");
+
+        exitCode = ExitCode.ServerError;
       }
       finally
       {
-        logger.LogWarning("Stopping server...");
+        logger.LogWarning("Stopping server");
+        
+        // Stop server
+        await piServer.StopServer();
       }
 
       // Done
       logger.LogInformation("Finished");
-      return ExitCode.OK;
+      return exitCode;
     }
 
     /// <summary>
@@ -110,7 +131,7 @@ namespace ServerApp
         .MapResult(
           opts =>
           {
-            options = optsMapper.Map<ProgramOptions>(opts);
+            programOptions = optsMapper.Map<ProgramOptions>(opts);
             return CommandLineOptions.ParseOK;
           },
           errors =>

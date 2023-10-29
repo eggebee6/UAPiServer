@@ -8,8 +8,10 @@ namespace ServerApp
 {
   internal static class ExitCode
   {
-    public const int OK = 0;
-    public const int ParseFailed = 1;
-    public const int CertificateError = 2;
+    public static readonly int OK = 0;
+    public static readonly int Error = 1;
+    public static readonly int ParseFailed = 2;
+    public static readonly int CertificateError = 3;
+    public static readonly int ServerError = 4;
   }
 }
