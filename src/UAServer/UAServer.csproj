@@ -10,4 +10,10 @@
     <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua" Version="1.4.371.96" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Resources\UAModels\SenseHat.xml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
