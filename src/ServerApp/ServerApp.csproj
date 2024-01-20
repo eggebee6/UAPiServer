@@ -16,4 +16,14 @@
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\PiServer\PiServer.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Resources\Configuration\PiServer.Config.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
