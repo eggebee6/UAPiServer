@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ServerApp": {
+      "commandName": "Project",
+      "commandLineArgs": "--autoAccept"
+    }
+  }
+}
