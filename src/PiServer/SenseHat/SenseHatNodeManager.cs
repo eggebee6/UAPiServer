@@ -113,7 +113,7 @@ namespace PiServer.SenseHat
 
         AddPredefinedNode(SystemContext, senseHatNode);
 
-        InitializeSenseHatNode(senseHatNode);
+        InitializeSenseHatNode();
       }
     }
 
