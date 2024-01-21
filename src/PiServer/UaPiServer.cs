@@ -37,6 +37,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Threading.Tasks;
 using Opc.Ua.Configuration;
+using PiServer.SenseHat;
 
 namespace PiServer
 {
@@ -82,10 +83,11 @@ namespace PiServer
 
       logger.LogInformation("Creating node managers");
 
-      // TODO: Add PiServer node manager
-      //nodeManagers.Add(new PiServerNodeManager(
-      //  server,
-      //  configuration));
+      // Add Sense HAT node manager
+      nodeManagers.Add(new SenseHatNodeManager(
+        server,
+        configuration,
+        serverOptions.SenseHat));
 
       return new MasterNodeManager(server, configuration, null, nodeManagers.ToArray());
     }
@@ -387,6 +389,8 @@ namespace PiServer
 
       public X509Certificate2? Certificate = null;
       public bool AutoAccept = false;
+
+      public ISenseHat SenseHat = null;
     }
   }
 }

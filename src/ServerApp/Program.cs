@@ -10,6 +10,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using PiServer;
+using PiServer.SenseHat;
 
 namespace ServerApp
 {
@@ -63,8 +64,8 @@ namespace ServerApp
         logger.LogWarning("Auto-accept client certificates is ON");
       }
 
-      // TODO: Initialize Sense HAT or create Sense HAT simulation
-      //SimulatedSenseHat sim = new SimulatedSenseHat();
+      // Initialize Sense HAT or create Sense HAT simulation
+      ISenseHat senseHat = InitializeSenseHat(loggerFactory) ?? new SimulatedSenseHat(loggerFactory);
 
       // Create server
       UaPiServer piServer = new UaPiServer(opts =>
@@ -72,6 +73,7 @@ namespace ServerApp
         opts.LoggerFactory = loggerFactory;
         opts.Certificate = certificate;
         opts.AutoAccept = programOptions.AutoAccept;
+        opts.SenseHat = senseHat;
       });
       
       ExitCode exitCode = ExitCode.Error;
@@ -204,6 +206,17 @@ namespace ServerApp
         logger.LogError("Failed to load certificate from {filename}", certificateFilename);
         throw;
       }
+    }
+
+    /// <summary>
+    /// Initialize the Sense HAT or return null if initialization fails
+    /// </summary>
+    /// <param name="loggerFactory">LoggerFactory for Sense HAT</param>
+    /// <returns>Sense HAT interface, or null if failure</returns>
+    private static ISenseHat? InitializeSenseHat(LoggerFactory loggerFactory)
+    {
+      // TODO: Attempt to initialize the Sense HAT
+      return null;
     }
   }
 }
