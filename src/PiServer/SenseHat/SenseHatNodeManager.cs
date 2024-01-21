@@ -124,6 +124,8 @@ namespace PiServer.SenseHat
     {
       lock (Lock)
       {
+        DeinitializeSenseHatNode();
+
         base.DeleteAddressSpace();
       }
     }
