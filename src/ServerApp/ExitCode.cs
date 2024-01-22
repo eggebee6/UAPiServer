@@ -32,29 +32,6 @@ namespace ServerApp
         { ExitCode.Error, 1 }
       };
 
-      // Assign values to remaining error codes
-      foreach (ExitCode e in ExitCodes)
-      {
-        // Skip already defined exit codes
-        if (ret.ContainsKey(e))
-        {
-          continue;
-        }
-
-        // Get hash code for enum string
-        string str = e.ToString();
-        int val = str.GetHashCode();
-
-        // Find unused value if map already contains value
-        while (ret.ContainsValue(val))
-        {
-          ++val;
-        }
-
-        // Add value to map
-        ret.Add(e, val);
-      }
-
       // Return initialized map
       return ret;
     });
