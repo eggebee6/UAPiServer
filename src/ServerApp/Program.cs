@@ -65,7 +65,12 @@ namespace ServerApp
       }
 
       // Initialize Sense HAT or create Sense HAT simulation
-      ISenseHat senseHat = InitializeSenseHat(loggerFactory) ?? new SimulatedSenseHat(loggerFactory);
+      ISenseHat senseHat = InitializeSenseHat(loggerFactory);
+      if (senseHat is null)
+      {
+        senseHat = new SimulatedSenseHat(loggerFactory);
+        logger.LogWarning("Using simulated Sense HAT");
+      }
 
       // Create server
       UaPiServer piServer = new UaPiServer(opts =>
@@ -215,8 +220,15 @@ namespace ServerApp
     /// <returns>Sense HAT interface, or null if failure</returns>
     private static ISenseHat? InitializeSenseHat(LoggerFactory loggerFactory)
     {
-      // TODO: Attempt to initialize the Sense HAT
-      return null;
+      try
+      {
+        return new SenseHat();
+      }
+      catch(Exception ex)
+      {
+        logger.LogError("Failed to access Sense HAT: {ex}", ex.Message);
+        return null;
+      }
     }
   }
 }
